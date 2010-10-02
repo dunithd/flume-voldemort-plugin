@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+
+<project name="flume-voldemort-plugin" default="jar">
+    <property name="javac.debug" value="on"/>
+    <property name="flume.home" value="../.."/>
+    <property name="jar.name" value="flume-voldemort-plugin.jar"/>
+
+    <path id="classpath">
+        <pathelement location="${flume.home}/build/classes"/>
+        <fileset dir="./lib">
+          <include name="log4j-1.2.15.jar" />
+          <include name="voldemort-0.81.jar" />
+        </fileset>
+  
+        <fileset dir="${flume.home}">
+            <include name="flume-*.jar" />
+        </fileset>
+        <pathelement location="${flume.home}/lib/"/>
+    </path>
+
+    <target name="jar">
+        <mkdir dir="build"/>
+        <mkdir dir="build/classes"/>
+
+        <javac srcdir="./src" destdir="build/classes" debug="${javac.debug}">
+            <classpath refid="classpath"/>
+        </javac>
+
+        <jar jarfile="${jar.name}" basedir="build/classes"/>
+    </target>
+
+    <target name="clean">
+        <echo message="Cleaning generated files and stuff"/>
+        <delete dir="build" />
+        <delete file="${jar.name}" />
+    </target>
+
+</project>
