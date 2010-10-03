@@ -20,10 +20,10 @@ import java.util.*;
  * This allows you to use Voldemort as a Flume sink.
  *
  * Voldemort is a key-value storage system so that each event being stored requires a unique key.
- * A given key can have three granuality levels as DAY,HOUR and MINUTE. These levels can be configured when
+ * A given key can have three granularity levels as DAY,HOUR and MINUTE. These levels can be configured when
  * constructing the sink.
  *
- * @author Dunith Dhanushka, dunithd@gmail.com
+ * @author Dunith Dhanushka, dunithd@gmail.com, dunithd.wordpress.com
  */
 public class VoldemortSink extends EventSink.Base {
 
@@ -31,7 +31,7 @@ public class VoldemortSink extends EventSink.Base {
 
     private String storeName = "test";
     private String bootstrapUrl = "tcp://localhost:6666";
-    private String granualityLevel = "DAY"; //key space granuality level. Defaults to "DAY"
+    private String granularityLevel = "DAY"; //key space granularity level. Defaults to "DAY"
 
     private StoreClientFactory factory;
     private StoreClient client;
@@ -40,12 +40,12 @@ public class VoldemortSink extends EventSink.Base {
      * This is the Voldemort sink for Flume.
      * @param bootstrapUrl bootstrap URL of an active Voldemort instance
      * @param storeName name of the Voldemort store which used to store log entries
-     * @param granualityLevel granuality of the keys 
+     * @param granularityLevel granularity of the keys
      */
-    public VoldemortSink(String bootstrapUrl, String storeName,String granualityLevel) {
+    public VoldemortSink(String bootstrapUrl, String storeName,String granularityLevel) {
         this.bootstrapUrl = bootstrapUrl;
         this.storeName = storeName;
-        this.granualityLevel = granualityLevel;
+        this.granularityLevel = granularityLevel;
     }
 
     /**
@@ -65,8 +65,8 @@ public class VoldemortSink extends EventSink.Base {
      */
     @Override
     public void append(Event e) throws IOException {
-        //first, generate a key based on the specified granuality
-        String key = generateKey(this.granualityLevel);
+        //first, generate a key based on the specified granularity
+        String key = generateKey(this.granularityLevel);
 
         //check whether the given key has a value stored in Voldemort
         Versioned<String> version = client.get(key);
@@ -102,7 +102,7 @@ public class VoldemortSink extends EventSink.Base {
             public EventSink build(Context context, String... argv) {
                 if (argv.length < 3) {
                     throw new IllegalArgumentException(
-                            "usage: voldemortSink(\"bootstrapURL\", \"storeName\",\"key space granuality\"...");
+                            "usage: voldemortSink(\"bootstrapURL\", \"storeName\",\"key space granualirity\"...");
                 }
                 return new VoldemortSink(argv[0],argv[1],argv[2]);
             }
@@ -122,17 +122,17 @@ public class VoldemortSink extends EventSink.Base {
 
     /**
      * Returns a String representing the current date to be used as a key.  This has the format "YYYYMMDDHH".
-     * Format depends on the user specified granuality level.
-     * @param granuality "DAY|HOUR|MINUTE"
+     * Format depends on the user specified granularity level.
+     * @param granularity "DAY|HOUR|MINUTE"
      */
-    private String generateKey(String granuality) {
+    private String generateKey(String granularity) {
         String key;
         String pattern = "yyyyMMdd";
-        if(granuality.equalsIgnoreCase("DAY")) {
+        if(granularity.equalsIgnoreCase("DAY")) {
             pattern = "yyyyMMdd";
-        } else if(granuality.equalsIgnoreCase("HOUR")) {
+        } else if(granularity.equalsIgnoreCase("HOUR")) {
             pattern+="HH";
-        } else if(granuality.equalsIgnoreCase("MINUTE")) {
+        } else if(granularity.equalsIgnoreCase("MINUTE")) {
             pattern+="HHmm";
         }
         SimpleDateFormat format = new SimpleDateFormat(pattern);
