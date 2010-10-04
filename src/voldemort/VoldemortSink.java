@@ -31,7 +31,7 @@ public class VoldemortSink extends EventSink.Base {
 
     private String storeName = "test";
     private String bootstrapUrl = "tcp://localhost:6666";
-    private String granularityLevel = "DAY"; //key space granularity level. Defaults to "DAY"
+    private Granularity granularityLevel; //key space granularity level. Defaults to "DAY"
 
     private StoreClientFactory factory;
     private StoreClient client;
@@ -42,7 +42,7 @@ public class VoldemortSink extends EventSink.Base {
      * @param storeName name of the Voldemort store which used to store log entries
      * @param granularityLevel granularity of the keys
      */
-    public VoldemortSink(String bootstrapUrl, String storeName,String granularityLevel) {
+    public VoldemortSink(String bootstrapUrl, String storeName, Granularity granularityLevel) {
         this.bootstrapUrl = bootstrapUrl;
         this.storeName = storeName;
         this.granularityLevel = granularityLevel;
@@ -66,7 +66,7 @@ public class VoldemortSink extends EventSink.Base {
     @Override
     public void append(Event e) throws IOException {
         //first, generate a key based on the specified granularity
-        String key = generateKey(this.granularityLevel);
+        String key = generateKey(this.granularityLevel.toString());
 
         //check whether the given key has a value stored in Voldemort
         Versioned<String> version = client.get(key);
@@ -104,7 +104,7 @@ public class VoldemortSink extends EventSink.Base {
                     throw new IllegalArgumentException(
                             "usage: voldemortSink(\"bootstrapURL\", \"storeName\",\"key space granualirity\"...");
                 }
-                return new VoldemortSink(argv[0],argv[1],argv[2]);
+                return new VoldemortSink(argv[0],argv[1],Granularity.fromDisplay(argv[2]));
             }
         };
     }
