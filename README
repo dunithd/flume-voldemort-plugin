@@ -1,0 +1,65 @@
+<<<<<<< HEAD
+=======
+flume-voldemort-plugin
+======================
+
+The flume-voldemort-plugin allows you to use Voldemort as a Flume sink.
+
+First things first
+------------------
+1. You need to have 'ant' installed in your PC. If not, go to http://ant.apache.org and install it.
+
+
+Getting Started with flume-voldemort-plugin
+-------------------------------------------
+
+1. Set FLUME_HOME environment variable first
+    export FLUME_HOME=<path to where your Flume installation resides>
+
+    from this point forward, I'll use FLUME_HOME to indicate the Flume installation path
+
+2. Copy the flume-voldemort-plugin directory into FLUME_HOME/plugins/.  
+
+3. Go to flume-voldemort-plugin directory and issue 'ant' command to build the flume-voldemort-plugin.jar
+   If build succeeded, you can see the flume-voldemort-plugin.jar inside current directory.
+
+4. Copy flume-voldemort-plugin.jar and all jar files inside the lib/ directory into FLUME_HOME/lib.
+      After copying, make sure following jar files exist in the FLUME_HOME/lib directory
+      - flume-voldemort-plugin.jar
+      - voldemort-0.81.jar
+      - log4j-1.2.15.jar
+      - google-collect-1.0.jar
+
+5. Go to FLUME_HOME/conf directory
+    - Make a copy of  flume-site.xml.template file and rename the new file as flume-site.xml
+    - Modify flume-site.xml to include:
+
+    <configuration>
+      <property>
+        <name>flume.plugin.classes</name>
+        <value>voldemort.VoldemortSink</value>
+        <description>Comma separated list of plugin classes</description>
+      </property>
+    </configuration>
+
+6. Startup Flume master and nodes and verify that the plugin is detected by Flume
+    cd $FLUME_HOME
+    bin/flume master
+
+    check for following line in the startup log of the Flume master
+
+    2010-10-02 18:46:14,856 [main] INFO conf.SinkFactoryImpl: Found sink builder voldemortSink in voldemort.VoldemortSink
+
+    If you cant see the above line in master's startup log, start redoing from step (2) :)  
+
+    bin/flume node_nowatch
+
+7. Congratulations! you are done with the installation.
+
+
+Usage
+-----
+
+
+
+>>>>>>> 019b054... Added build.xml, src and lib folders
