@@ -53,6 +53,8 @@ public class VoldemortSink extends EventSink.Base {
     private StoreClientFactory factory;
     private StoreClient client;
 
+    private boolean isOpen = false;
+
     /**
      * This is the Voldemort sink for Flume.
      * @param bootstrapUrl bootstrap URL of an active Voldemort instance
@@ -105,8 +107,12 @@ public class VoldemortSink extends EventSink.Base {
      */
     @Override
     public void close() throws IOException {
-        logger.debug("Voldemort sink is being shutting down...");
-        factory.close();
+        if (factory != null) {
+            logger.debug("Voldemort sink is being shutting down...");
+            factory.close();
+            factory = null;
+            client = null;
+        }
     }
 
     /**
