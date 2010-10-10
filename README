@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 flume-voldemort-plugin
 ======================
 
@@ -18,20 +16,19 @@ Getting Started with flume-voldemort-plugin
 
     from this point forward, I'll use FLUME_HOME to indicate the Flume installation path
 
-2. Copy the flume-voldemort-plugin directory into FLUME_HOME/plugins/.  
+2. Copy the flume-voldemort-plugin directory into $FLUME_HOME/plugins/.  
 
 3. Go to flume-voldemort-plugin directory and issue 'ant' command to build the flume-voldemort-plugin.jar
    If build succeeded, you can see the flume-voldemort-plugin.jar inside current directory.
 
-4. Copy flume-voldemort-plugin.jar and all jar files inside the lib/ directory into FLUME_HOME/lib.
-      After copying, make sure following jar files exist in the FLUME_HOME/lib directory
+4. Copy flume-voldemort-plugin.jar and all jar files inside the lib/ directory into $FLUME_HOME/lib.
+      After copying, make sure following jar files exist in the $FLUME_HOME/lib directory
       - flume-voldemort-plugin.jar
       - voldemort-0.81.jar
       - log4j-1.2.15.jar
       - google-collect-1.0.jar
 
-5. Go to FLUME_HOME/conf directory
-    - Make a copy of  flume-site.xml.template file and rename the new file as flume-site.xml
+5. Go to $FLUME_HOME/conf directory
     - Modify flume-site.xml to include:
 
     <configuration>
@@ -41,6 +38,8 @@ Getting Started with flume-voldemort-plugin
         <description>Comma separated list of plugin classes</description>
       </property>
     </configuration>
+    
+    You can find an example for this in flume-site.xml.template file.
 
 6. Startup Flume master and nodes and verify that the plugin is detected by Flume
     cd $FLUME_HOME
@@ -60,6 +59,3 @@ Getting Started with flume-voldemort-plugin
 Usage
 -----
 
-
-
->>>>>>> 019b054... Added build.xml, src and lib folders
