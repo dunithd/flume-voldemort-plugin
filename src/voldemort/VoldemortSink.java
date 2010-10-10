@@ -53,6 +53,7 @@ public class VoldemortSink extends EventSink.Base {
     private StoreClientFactory factory;
     private StoreClient client;
 
+    /* keeps track whether the sink is open or not and prevents opening sink more than once */
     private boolean isOpen = false;
 
     /**
@@ -73,8 +74,13 @@ public class VoldemortSink extends EventSink.Base {
      */
     @Override
     public void open() throws IOException {
-        this.factory = new SocketStoreClientFactory(new ClientConfig().setBootstrapUrls(bootstrapUrl));
-        this.client = factory.getStoreClient(storeName);
+        if (!isOpen) {
+            this.factory = new SocketStoreClientFactory(new ClientConfig().setBootstrapUrls(bootstrapUrl));
+            this.client = factory.getStoreClient(storeName);
+            isOpen = true;
+        } else {
+            throw new IOException("Sink is already open.");
+        }
     }
 
     /**
@@ -98,7 +104,11 @@ public class VoldemortSink extends EventSink.Base {
         String value = formatLogEntry(e);
         existingValue = existingValue.concat(value);    //append the new entry to old entry      
 
-        client.put(key,existingValue);  //finally, perform PUT operation on Voldemort
+        if (client != null) {
+            client.put(key,existingValue);  //finally, perform PUT operation on Voldemort
+        } else {
+            throw new IllegalStateException("Connection to Voldemort server is closed.");
+        }
     }
 
     /**
@@ -112,6 +122,7 @@ public class VoldemortSink extends EventSink.Base {
             factory.close();
             factory = null;
             client = null;
+            isOpen = false; 
         }
     }
 
