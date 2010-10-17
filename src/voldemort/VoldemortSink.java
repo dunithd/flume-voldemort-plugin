@@ -46,8 +46,8 @@ public class VoldemortSink extends EventSink.Base {
 
     static org.apache.log4j.Logger logger = Logger.getLogger(VoldemortSink.class);
 
-    private String storeName = "test";
-    private String bootstrapUrl = "tcp://localhost:6666";
+    private String storeName;
+    private String bootstrapUrl;
     private Granularity granularityLevel; //key space granularity level. Defaults to "DAY"
 
     private StoreClientFactory factory;
@@ -55,6 +55,15 @@ public class VoldemortSink extends EventSink.Base {
 
     /* keeps track whether the sink is open or not and prevents opening sink more than once */
     private boolean isOpen = false;
+
+    /**
+     * Constructor with default granularity level set to DAY
+     * @param bootstrapUrl bootstrapUrl bootstrap URL of an active Voldemort instance
+     * @param storeName  name of the Voldemort store which used to store log entries
+     */
+    public VoldemortSink(String bootstrapUrl,String storeName) {
+        this(bootstrapUrl,storeName,Granularity.DAY);
+    }
 
     /**
      * This is the Voldemort sink for Flume.
@@ -122,36 +131,8 @@ public class VoldemortSink extends EventSink.Base {
             factory.close();
             factory = null;
             client = null;
-            isOpen = false; 
+            isOpen = false;
         }
-    }
-
-    /**
-     * Construct a new parameterized sink
-     * @return VoldemortSink
-     */
-    public static SinkFactory.SinkBuilder builder() {
-        return new SinkFactory.SinkBuilder() {
-            @Override
-            public EventSink build(Context context, String... argv) {
-                if (argv.length < 3) {
-                    throw new IllegalArgumentException(
-                            "usage: voldemortSink(\"bootstrapURL\", \"storeName\",\"key space granualirity\"...");
-                }
-                return new VoldemortSink(argv[0],argv[1],Granularity.fromDisplay(argv[2]));
-            }
-        };
-    }
-
-    /**
-     * This is a special function used by the SourceFactory to pull in this class
-     * as a plugin sink.
-     */
-    public static List<Pair<String, SinkFactory.SinkBuilder>> getSinkBuilders() {
-        List<Pair<String, SinkFactory.SinkBuilder>> builders =
-                new ArrayList<Pair<String, SinkFactory.SinkBuilder>>();
-        builders.add(new Pair<String, SinkFactory.SinkBuilder>("voldemortSink", builder()));
-        return builders;
     }
 
     /**
@@ -198,6 +179,47 @@ public class VoldemortSink extends EventSink.Base {
         eventInfo.append(message);  //append log message
         eventInfo.append('|');  // add pipe delimiter to denote the EOL
         return eventInfo.toString();
+    }
+
+    /**
+     * This is a special function used by the SourceFactory to pull in this class
+     * as a plugin sink.
+     */
+    public static List<Pair<String, SinkFactory.SinkBuilder>> getSinkBuilders() {
+        List<Pair<String, SinkFactory.SinkBuilder>> builders =
+                new ArrayList<Pair<String, SinkFactory.SinkBuilder>>();
+        builders.add(new Pair<String, SinkFactory.SinkBuilder>("voldemortSink", builder()));
+        return builders;
+    }
+
+    /**
+     * Construct a new parameterized sink
+     * @return VoldemortSink
+     */
+    public static SinkFactory.SinkBuilder builder() {
+        return new SinkFactory.SinkBuilder() {
+            @Override
+            public EventSink build(Context context, String... argv) {
+                String storeName = "test";  //default store name
+                String bootstrapUrl = "tcp://localhost:6666";   //default bootstrap url
+                Granularity granularityLevel = Granularity.DAY; //if not supplied, we'll fallback to DAY 
+                if(argv.length >= 1) {
+                    bootstrapUrl = argv[0];     //override
+                }
+                if(argv.length >= 2) {
+                    storeName = argv[1];
+                }
+                if(argv.length >= 3) {
+                    granularityLevel = Granularity.fromDisplay(argv[2]);
+                }
+                try {
+                    EventSink sink = new VoldemortSink(bootstrapUrl,storeName,granularityLevel);
+                    return sink;
+                } catch(Exception e) {
+                    throw new IllegalArgumentException("usage: voldemortSink(\"bootstrapURL\", \"storeName\",\"key space granualirity\"...");
+                }
+            }
+        };
     }
 
 }
