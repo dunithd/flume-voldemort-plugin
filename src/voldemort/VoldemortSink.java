@@ -57,12 +57,11 @@ public class VoldemortSink extends EventSink.Base {
     private boolean isOpen = false;
 
     /**
-     * Constructor with default granularity level set to DAY
-     * @param bootstrapUrl bootstrapUrl bootstrap URL of an active Voldemort instance
+     * Constructor with default granularity level set to DAY  and default bootstrap URL
      * @param storeName  name of the Voldemort store which used to store log entries
      */
-    public VoldemortSink(String bootstrapUrl,String storeName) {
-        this(bootstrapUrl,storeName,Granularity.DAY);
+    public VoldemortSink(String storeName) {
+        this("tcp//localhost:6666",storeName,Granularity.DAY);
     }
 
     /**
@@ -82,13 +81,13 @@ public class VoldemortSink extends EventSink.Base {
      * @throws IOException
      */
     @Override
-    public void open() throws IOException {
+    public void open() throws IllegalStateException {
         if (!isOpen) {
             this.factory = new SocketStoreClientFactory(new ClientConfig().setBootstrapUrls(bootstrapUrl));
             this.client = factory.getStoreClient(storeName);
             isOpen = true;
         } else {
-            throw new IOException("Sink is already open.");
+            throw new IllegalStateException("Sink is already open.");
         }
     }
 
@@ -116,7 +115,7 @@ public class VoldemortSink extends EventSink.Base {
         if (client != null) {
             client.put(key,existingValue);  //finally, perform PUT operation on Voldemort
         } else {
-            throw new IllegalStateException("Connection to Voldemort server is closed.");
+            throw new IOException("Connection to Voldemort server is closed.");
         }
     }
 
